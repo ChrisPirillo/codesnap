@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSnap - Beautiful Code Screenshots</title>
+    
+    <!-- SEO & Meta Tags -->
+    <meta name="description" content="Create beautiful, high-quality screenshots of your source code with CodeSnap. Customize themes, backgrounds, and syntax highlighting. A free browser-based developer tool.">
+    <meta name="keywords" content="code screenshot, code snippet image, syntax highlighting, beautiful code, developer tools, code sharing, prismjs, tailwind css, code image generator, carbon alternative">
+    <meta name="author" content="Chris Pirillo">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://pirillo.com/arcade/codesnap.html">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pirillo.com/arcade/codesnap.html">
+    <meta property="og:title" content="CodeSnap - Beautiful Code Screenshots">
+    <meta property="og:description" content="Generate beautiful screenshots of your code snippets instantly. Customize languages, themes, and backgrounds.">
+    <meta property="og:image" content="https://pirillo.com/arcade/images/codesnap.png">
+    <meta property="og:site_name" content="Pirillo Arcade">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://pirillo.com/arcade/codesnap.html">
+    <meta name="twitter:title" content="CodeSnap - Beautiful Code Screenshots">
+    <meta name="twitter:description" content="Generate beautiful screenshots of your code snippets instantly. Customize languages, themes, and backgrounds.">
+    <meta name="twitter:image" content="https://pirillo.com/arcade/images/codesnap.png">
+    <meta name="twitter:creator" content="@ChrisPirillo">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "CodeSnap",
+      "url": "https://pirillo.com/arcade/codesnap.html",
+      "description": "A browser-based tool to create beautiful, customizable screenshots of code snippets.",
+      "author": {
+        "@type": "Person",
+        "name": "Chris Pirillo",
+        "url": "https://pirillo.com"
+      },
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": "Syntax highlighting, Custom themes, PNG export, Gradient backgrounds"
+    }
+    </script>
+
+    <!-- Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1CQ4D3VQ3L"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-1CQ4D3VQ3L');
+    </script>
+
+    <!-- Resource Hints (Performance) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (Critical for Layout - Keep in Head) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        gray: {
+                            850: '#1f2937',
+                            900: '#111827',
+                            950: '#0b0f19',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* --- The Theme Engine --- */
+        :root {
+            /* Default Variables (Midnight) */
+            --syntax-bg: #1e1e1e;
+            --syntax-text: #d4d4d4;
+            --syntax-keyword: #569cd6;
+            --syntax-string: #ce9178;
+            --syntax-comment: #6a9955;
+            --syntax-func: #dcdcaa;
+            --syntax-num: #b5cea8;
+            --syntax-tag: #569cd6;
+            --syntax-attr: #9cdcfe;
+            --syntax-operator: #d4d4d4;
+            --syntax-important: #c586c0;
+            
+            --window-shadow: 0 20px 60px -10px rgba(0,0,0,0.5);
+            --header-bg: rgba(0,0,0,0.2);
+        }
+
+        /* Theme: Void (Black + Neon) */
+        .theme-void {
+            --syntax-bg: #000000;
+            --syntax-text: #f8f8f2;      
+            --syntax-keyword: #ff79c6;   /* Pink */
+            --syntax-string: #f1fa8c;    /* Yellow */
+            --syntax-comment: #6272a4;   /* Blue-grey */
+            --syntax-func: #8be9fd;      /* Cyan */
+            --syntax-num: #bd93f9;       /* Purple */
+            --syntax-tag: #ff79c6;
+            --syntax-attr: #50fa7b;      /* Green */
+            --syntax-operator: #ff79c6;
+            --syntax-important: #ffb86c; /* Orange */
+            --window-shadow: 0 0 0 1px #333, 0 20px 60px -10px rgba(0,0,0,0.8);
+            --header-bg: #000000;
+        }
+
+        /* Theme: Dracula */
+        .theme-dracula {
+            --syntax-bg: #282a36;
+            --syntax-text: #f8f8f2;
+            --syntax-keyword: #ff79c6;
+            --syntax-string: #f1fa8c;
+            --syntax-comment: #6272a4;
+            --syntax-func: #50fa7b;
+            --syntax-num: #bd93f9;
+            --syntax-tag: #ff79c6;
+            --syntax-attr: #50fa7b;
+            --syntax-operator: #ff79c6;
+            --syntax-important: #ffb86c;
+        }
+
+        /* Theme: Nord */
+        .theme-nord {
+            --syntax-bg: #2e3440;
+            --syntax-text: #d8dee9;
+            --syntax-keyword: #81a1c1;
+            --syntax-string: #a3be8c;
+            --syntax-comment: #4c566a;
+            --syntax-func: #88c0d0;
+            --syntax-num: #b48ead;
+            --syntax-tag: #81a1c1;
+            --syntax-attr: #8fbcbb;
+            --syntax-operator: #81a1c1;
+            --syntax-important: #ebcb8b;
+        }
+
+        /* Theme: Moonlight */
+        .theme-moonlight {
+            --syntax-bg: #1f202e;
+            --syntax-text: #a9b7c6;
+            --syntax-keyword: #c678dd;
+            --syntax-string: #98c379;
+            --syntax-comment: #5c6370;
+            --syntax-func: #61afef;
+            --syntax-num: #d19a66;
+            --syntax-tag: #e06c75;
+            --syntax-attr: #d19a66;
+            --syntax-operator: #56b6c2;
+            --syntax-important: #c678dd;
+        }
+
+        /* Theme: Dawn (Light) */
+        .theme-dawn {
+            --syntax-bg: #fafafa;
+            --syntax-text: #5c6978;
+            --syntax-keyword: #a626a4;
+            --syntax-string: #50a14f;
+            --syntax-comment: #a0a1a7;
+            --syntax-func: #4078f2;
+            --syntax-num: #986801;
+            --syntax-tag: #e45649;
+            --syntax-attr: #986801;
+            --syntax-operator: #383a42;
+            --syntax-important: #a626a4;
+            --window-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
+            --header-bg: rgba(0,0,0,0.05);
+        }
+
+        /* --- Custom Prism CSS Override --- */
+        code[class*="language-"], pre[class*="language-"] {
+            color: var(--syntax-text);
+            text-shadow: none;
+            font-family: 'JetBrains Mono', monospace;
+            direction: ltr;
+            text-align: left;
+            word-spacing: normal;
+            line-height: 1.5;
+            tab-size: 4;
+            hyphens: none;
+            background: transparent !important;
+        }
+
+        /* Word Wrap Toggle Logic */
+        .wrapping-on code[class*="language-"], .wrapping-on pre[class*="language-"] {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .wrapping-off code[class*="language-"], .wrapping-off pre[class*="language-"] {
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        /* Map Prism classes to CSS Variables */
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: var(--syntax-comment); font-style: italic; }
+        .token.punctuation { color: var(--syntax-text); opacity: 0.7; }
+        .token.namespace { opacity: .7; }
+        .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: var(--syntax-num); }
+        .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: var(--syntax-string); }
+        .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string { color: var(--syntax-operator); }
+        .token.atrule, .token.attr-value, .token.keyword { color: var(--syntax-keyword); }
+        .token.function, .token.class-name { color: var(--syntax-func); }
+        .token.regex, .token.variable { color: var(--syntax-attr); }
+        
+        /* XML Specific Formatting */
+        .language-xml .token.tag { color: var(--syntax-tag); }
+        .language-xml .token.attr-name { color: var(--syntax-attr); }
+        .language-xml .token.attr-value { color: var(--syntax-string); }
+
+        /* Markdown Specific Color Normalization */
+        .token.title { color: var(--syntax-keyword); font-weight: bold; }
+        .token.list { color: var(--syntax-func); }
+        .token.bold { font-weight: bold; color: var(--syntax-important); }
+        .token.italic { font-style: italic; color: var(--syntax-important); }
+        .token.blockquote { color: var(--syntax-comment); font-style: italic; border-left: 2px solid var(--syntax-comment); padding-left: 8px; }
+        .token.code { color: var(--syntax-string); font-family: 'JetBrains Mono', monospace; }
+        .token.hr { color: var(--syntax-comment); font-style: normal; opacity: 0.8; }
+        .token.url { color: var(--syntax-func); text-decoration: underline; }
+        
+        /* Fix for dashes appearing different colors in headers vs hr */
+        .language-markdown .token.title .token.punctuation {
+            color: var(--syntax-comment);
+            opacity: 0.8;
+            font-weight: normal;
+        }
+
+        /* Scrollbar hiding for clean UI */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Custom Input Styling */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #6366f1;
+            margin-top: -6px;
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #374151;
+            border-radius: 2px;
+        }
+        
+        /* Color Picker Styling */
+        input[type=color] {
+            -webkit-appearance: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            overflow: hidden;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input[type=color]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type=color]::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+            border: 2px solid #374151;
+        }
+
+        /* Checkered background for transparency awareness */
+        .checkered-bg {
+            background-color: #111827;
+            background-image: 
+              linear-gradient(45deg, #1f2937 25%, transparent 25%), 
+              linear-gradient(-45deg, #1f2937 25%, transparent 25%), 
+              linear-gradient(45deg, transparent 75%, #1f2937 75%), 
+              linear-gradient(-45deg, transparent 75%, #1f2937 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        /* Flash Animation for Auto-Clear */
+        @keyframes flashFocus {
+            0% { background-color: #374151; }
+            100% { background-color: #020617; }
+        }
+        .flash-focus {
+            animation: flashFocus 0.5s ease-out;
+        }
+
+        /* --- EXPORT OVERRIDES --- */
+        /* html2canvas baseline shift correction */
+        /* Forces the title UP only during PNG export */
+        body.exporting #windowTitle {
+            transform: translateY(-3px) !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-white h-screen flex flex-col overflow-hidden font-sans selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="border-b border-gray-800 bg-gray-900/50 backdrop-blur-md z-10 px-6 py-4 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-500 p-2 rounded-lg">
+                <i data-lucide="camera" class="text-white w-5 h-5"></i>
+            </div>
+            <h1 class="font-bold text-xl tracking-tight">CodeSnap</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <button id="downloadBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+                <i data-lucide="download" class="w-4 h-4"></i> Export PNG
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar Controls -->
+        <aside class="w-80 bg-gray-900 border-r border-gray-800 flex flex-col overflow-y-auto p-6 gap-6 shrink-0 z-20">
+            
+            <!-- Language -->
+            <div class="space-y-3">
+                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider" for="languageSelect">Language</label>
+                <select id="languageSelect" class="w-full bg-gray-800 border border-gray-700 text-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="bash">Bash</option>
+                    <option value="c">C</option>
+                    <option value="cpp">C++</option>
+                    <option value="css">CSS</option>
+                    <option value="go">Go</option>
+                    <option value="html">HTML</option>
+                    <option value="java">Java</option>
+                    <option value="javascript" selected>JavaScript</option>
+                    <option value="json">JSON</option>
+                    <option value="markdown">Markdown</option>
+                    <option value="python">Python</option>
+                    <option value="rust">Rust</option>
+                    <option value="sql">SQL</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="xml">XML</option>
+                </select>
+            </div>
+
+            <!-- Theme -->
+            <div class="space-y-3">
+                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Theme</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button class="theme-btn px-3 py-2 rounded border border-gray-700 bg-gray-800 hover:border-gray-500 text-sm text-left transition-all active-theme ring-2 ring-indigo-500" data-theme="default">Midnight</button>
+                    <button class="theme-btn px-3 py-2 rounded border border-gray-700 bg-gray-800 hover:border-gray-500 text-sm text-left transition-all" data-theme="theme-void">Void (Black)</button>
+                    <button class="theme-btn px-3 py-2 rounded border border-gray-700 bg-gray-800 hover:border-gray-500 text-sm text-left transition-all" data-theme="theme-dracula">Dracula</button>
+                    <button class="theme-btn px-3 py-2 rounded border border-gray-700 bg-gray-800 hover:border-gray-500 text-sm text-left transition-all" data-theme="theme-nord">Nord</button>
+                    <button class="theme-btn px-3 py-2 rounded border border-gray-700 bg-gray-800 hover:border-gray-500 text-sm text-left transition-all" data-theme="theme-moonlight">Moonlight</button>
+                    <button class="theme-btn px-3 py-2 rounded border border-gray-700 bg-gray-800 hover:border-gray-500 text-sm text-left transition-all" data-theme="theme-dawn">Dawn (Light)</button>
+                </div>
+            </div>
+
+            <!-- Background Mode Selector -->
+            <div class="space-y-3">
+                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Background</label>
+                
+                <!-- Toggle -->
+                <div class="flex p-1 bg-gray-800 rounded-lg">
+                    <button id="bgModeTransparent" class="bg-mode-btn flex-1 py-1.5 text-xs font-medium rounded text-gray-400 hover:text-white transition-colors bg-indigo-600 text-white" data-mode="transparent">Transparent</button>
+                    <button id="bgModeSolid" class="bg-mode-btn flex-1 py-1.5 text-xs font-medium rounded text-gray-400 hover:text-white transition-colors" data-mode="solid">Solid</button>
+                    <button id="bgModeGradient" class="bg-mode-btn flex-1 py-1.5 text-xs font-medium rounded text-gray-400 hover:text-white transition-colors" data-mode="gradient">Gradient</button>
+                </div>
+
+                <!-- Gradient Controls -->
+                <div id="gradientControls" class="h-[72px] shrink-0 flex flex-col justify-center p-3 bg-gray-800/50 rounded-lg border border-gray-800 transition-all hidden">
+                    <div class="flex items-center gap-3">
+                        <input type="color" id="color1" value="#6366f1" title="Start Color">
+                        <input type="color" id="color2" value="#a855f7" title="End Color">
+                        <div class="flex-1 flex flex-col gap-1">
+                             <div class="flex justify-between text-[10px] text-gray-500">
+                                <span>Angle</span>
+                                <span id="angleVal">140°</span>
+                            </div>
+                            <input type="range" id="angleInput" min="0" max="360" value="140" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer" aria-label="Gradient Angle">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Solid Controls (Hidden by default) -->
+                <div id="solidControls" class="h-[72px] shrink-0 flex flex-col justify-center p-3 bg-gray-800/50 rounded-lg border border-gray-800 hidden transition-all">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-400">Pick Color</span>
+                        <input type="color" id="solidColor" value="#111827" title="Solid Color">
+                    </div>
+                </div>
+
+                <!-- Transparent Controls (Hidden by default) -->
+                 <div id="transparentControls" class="h-[72px] shrink-0 flex flex-col justify-center p-3 bg-gray-800/50 rounded-lg border border-gray-800 transition-all">
+                    <p class="text-[10px] text-gray-500 text-center leading-tight">Background is transparent (checkered pattern shown for reference).</p>
+                </div>
+            </div>
+
+            <!-- Window Title Input -->
+            <div class="space-y-3">
+                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider" for="windowTitleInput">Window Title</label>
+                <input type="text" id="windowTitleInput" class="w-full bg-gray-800 border border-gray-700 text-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="CodeSnap" value="CodeSnap">
+            </div>
+
+             <!-- Window Width -->
+            <div class="space-y-3">
+                <div class="flex justify-between text-xs text-gray-400">
+                    <span class="font-semibold uppercase tracking-wider">Window Width</span>
+                    <span id="widthVal">Auto</span>
+                </div>
+                <input type="range" id="widthInput" min="400" max="1200" value="0" step="10" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer" aria-label="Window Width">
+                <div class="text-[10px] text-gray-500 flex justify-between px-1 mt-1">
+                    <span>Auto</span>
+                    <span>Wide</span>
+                </div>
+            </div>
+
+             <!-- Font Size -->
+            <div class="space-y-3">
+                <div class="flex justify-between text-xs text-gray-400">
+                    <span class="font-semibold uppercase tracking-wider">Font Size</span>
+                    <span id="fontVal">14px</span>
+                </div>
+                <input type="range" id="fontInput" min="10" max="24" value="14" step="1" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer" aria-label="Font Size">
+            </div>
+
+            <!-- Word Wrap Toggle -->
+            <div class="flex items-center justify-between">
+                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider" for="wrapToggle">Word Wrap</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="wrapToggle" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+            </div>
+
+            <!-- Padding -->
+            <div class="space-y-3">
+                <div class="flex justify-between text-xs text-gray-400">
+                    <span class="font-semibold uppercase tracking-wider">Padding</span>
+                    <span id="paddingVal">16px</span>
+                </div>
+                <input type="range" id="paddingInput" min="16" max="128" value="16" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer" aria-label="Padding">
+            </div>
+
+            <!-- Opacity -->
+            <div class="space-y-3">
+                <div class="flex justify-between text-xs text-gray-400">
+                    <span class="font-semibold uppercase tracking-wider">Opacity</span>
+                    <span id="opacityVal">100%</span>
+                </div>
+                <input type="range" id="opacityInput" min="50" max="100" value="100" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer" aria-label="Opacity">
+            </div>
+
+             <!-- Export Quality -->
+             <div class="space-y-3">
+                <div class="flex justify-between text-xs text-gray-400">
+                    <span class="font-semibold uppercase tracking-wider">Export Size</span>
+                    <span id="scaleVal">3x</span>
+                </div>
+                <input type="range" id="scaleInput" min="1" max="5" value="3" step="1" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer" aria-label="Export Size">
+                 <div class="text-[10px] text-gray-500 flex justify-between px-1 mt-1">
+                    <span>1x</span>
+                    <span>5x</span>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Main Workspace -->
+        <div class="flex-1 flex flex-col relative min-w-0">
+            
+            <!-- Code Entry Area -->
+            <div class="h-48 bg-[#020617] border-b border-gray-800 flex flex-col shrink-0 z-20 shadow-lg">
+                <div class="bg-[#0f172a] px-4 py-2 text-xs text-indigo-300 font-semibold uppercase tracking-wider border-b border-gray-700 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="edit-3" class="w-3 h-3"></i>
+                        Editor
+                    </div>
+                    <span class="text-gray-500 font-normal normal-case">Click to auto-clear</span>
+                </div>
+                <textarea id="sourceInput" class="flex-1 w-full bg-[#020617] text-gray-200 p-4 font-mono text-sm focus:outline-none resize-none placeholder-gray-600 transition-colors whitespace-pre-wrap" spellcheck="false" placeholder="// Click here to paste your code...">
+// 🚀 Creating the future, one line at a time.
+
+const snap = new CodeSnap({
+  features: ['syntax-highlight', 'export-png'],
+  theme: 'midnight',
+  performance: 'blazing-fast'
+});
+
+console.log('Ready to ship!');</textarea>
+            </div>
+
+            <!-- Live Preview Area -->
+            <div class="flex-1 overflow-auto flex relative checkered-bg" id="previewContainer">
+                
+                <!-- m-auto ensures centering when small, and left-align when overflowing -->
+                <div class="m-auto p-12 min-w-min">
+                    <!-- The Capture Target -->
+                    <div id="captureTarget" class="transition-all duration-300 ease-out flex items-center justify-center shrink-0" style="padding: 16px; background: transparent;">
+                        
+                        <!-- Code Window -->
+                        <div id="codeWindow" class="wrapping-on rounded-xl overflow-hidden min-w-[400px] shadow-2xl transition-all duration-300" style="background-color: var(--syntax-bg); box-shadow: var(--window-shadow);">
+                            
+                            <!-- Window Controls (Mac Style) -->
+                            <div class="h-10 relative flex items-center justify-center select-none" style="background-color: var(--header-bg)">
+                                <!-- Buttons: Absolute Left -->
+                                <div class="flex gap-2 absolute left-4 z-10 top-1/2 -translate-y-1/2">
+                                    <div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                                    <div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                                    <div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+                                </div>
+                                
+                                <!-- Title: Standard Flex Center (Perfect for Preview) -->
+                                <div class="w-full text-center px-20 text-xs opacity-70 font-sans tracking-wide leading-none whitespace-nowrap" style="color: var(--syntax-text)" id="windowTitle">CodeSnap</div>
+                            </div>
+
+                            <!-- Code Block -->
+                            <div class="p-6 overflow-x-hidden">
+                                <pre class="!m-0 !p-0 !bg-transparent !text-sm"><code id="previewCode" class="language-javascript"></code></pre>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Libraries Moved to End of Body for Performance (Defer Parsing) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // --- DOM Elements ---
+        const sourceInput = document.getElementById('sourceInput');
+        const previewCode = document.getElementById('previewCode');
+        const captureTarget = document.getElementById('captureTarget');
+        const codeWindow = document.getElementById('codeWindow');
+        const windowTitle = document.getElementById('windowTitle');
+        const windowTitleInput = document.getElementById('windowTitleInput');
+        
+        // Controls
+        const paddingInput = document.getElementById('paddingInput');
+        const opacityInput = document.getElementById('opacityInput');
+        const scaleInput = document.getElementById('scaleInput');
+        const languageSelect = document.getElementById('languageSelect');
+        const widthInput = document.getElementById('widthInput');
+        const fontInput = document.getElementById('fontInput');
+        const wrapToggle = document.getElementById('wrapToggle');
+        
+        // Background Controls
+        const themeBtns = document.querySelectorAll('.theme-btn');
+        const color1 = document.getElementById('color1');
+        const color2 = document.getElementById('color2');
+        const angleInput = document.getElementById('angleInput');
+        const angleVal = document.getElementById('angleVal');
+        const solidColor = document.getElementById('solidColor');
+        const bgModeBtns = document.querySelectorAll('.bg-mode-btn');
+        const gradientControls = document.getElementById('gradientControls');
+        const solidControls = document.getElementById('solidControls');
+        const transparentControls = document.getElementById('transparentControls');
+
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // --- State Management ---
+        const state = {
+            padding: 16,
+            opacity: 100,
+            language: 'javascript',
+            theme: 'default',
+            bgMode: 'transparent', // transparent, solid, gradient
+            customGradient: {
+                c1: '#6366f1',
+                c2: '#a855f7',
+                angle: 140
+            },
+            solidColor: '#111827',
+            width: 0, // 0 = auto
+            wrap: true,
+            fontSize: 14,
+            hasCleared: false,
+            hasClearedTitle: false,
+            exportScale: 3
+        };
+
+        // --- Core Functions ---
+
+        function updateCode() {
+            const raw = sourceInput.value;
+            previewCode.textContent = raw;
+            Prism.highlightElement(previewCode);
+        }
+
+        function updateBackground() {
+            captureTarget.style.background = ''; // Clear inline styles
+            captureTarget.className = captureTarget.className.replace(/bg-grad-\d+|bg-grad-none/g, ''); // Clear preset classes just in case
+
+            if (state.bgMode === 'transparent') {
+                captureTarget.style.background = 'transparent';
+            } else if (state.bgMode === 'solid') {
+                captureTarget.style.background = state.solidColor;
+            } else if (state.bgMode === 'gradient') {
+                captureTarget.style.background = `linear-gradient(${state.customGradient.angle}deg, ${state.customGradient.c1}, ${state.customGradient.c2})`;
+            }
+        }
+
+        function updateStyles() {
+            // Update Padding
+            captureTarget.style.padding = `${state.padding}px`;
+            document.getElementById('paddingVal').innerText = `${state.padding}px`;
+
+            // Update Opacity
+            codeWindow.style.opacity = state.opacity / 100;
+            document.getElementById('opacityVal').innerText = `${state.opacity}%`;
+
+            // Update Language
+            previewCode.className = `language-${state.language}`;
+            
+            // Update Width
+            const widthValDisplay = document.getElementById('widthVal');
+            if (state.width == 0 || state.width == "400") {
+               if(state.width == "400") {
+                   codeWindow.style.width = 'auto';
+                   codeWindow.style.maxWidth = 'none';
+                   widthValDisplay.innerText = "Auto";
+               } else {
+                    codeWindow.style.width = 'auto';
+                    codeWindow.style.maxWidth = 'none';
+                    widthValDisplay.innerText = "Auto";
+               }
+            } else {
+                codeWindow.style.width = `${state.width}px`;
+                codeWindow.style.maxWidth = '100%'; 
+                widthValDisplay.innerText = `${state.width}px`;
+            }
+
+            // Update Font Size
+            previewCode.style.fontSize = `${state.fontSize}px`;
+            document.getElementById('fontVal').innerText = `${state.fontSize}px`;
+
+            // Update Wrapping
+            if (state.wrap) {
+                codeWindow.classList.remove('wrapping-off');
+                codeWindow.classList.add('wrapping-on');
+            } else {
+                codeWindow.classList.remove('wrapping-on');
+                codeWindow.classList.add('wrapping-off');
+            }
+
+            // Update Title with Language Display Text
+            if (windowTitleInput.value.trim() !== "") {
+                const langText = languageSelect.options[languageSelect.selectedIndex].text;
+                windowTitle.innerText = `${windowTitleInput.value} (${langText})`;
+            } else {
+                windowTitle.innerText = "";
+            }
+
+            updateCode(); 
+        }
+
+        // --- Event Listeners ---
+
+        // Auto-Clear Logic
+        sourceInput.addEventListener('focus', function() {
+            if (!state.hasCleared) {
+                this.value = '';
+                this.classList.add('flash-focus'); 
+                setTimeout(() => this.classList.remove('flash-focus'), 500);
+                state.hasCleared = true;
+                updateCode();
+            }
+        });
+
+        windowTitleInput.addEventListener('focus', function() {
+            if (!state.hasClearedTitle) {
+                this.value = '';
+                state.hasClearedTitle = true;
+                updateStyles();
+            }
+        });
+
+        sourceInput.addEventListener('input', updateCode);
+        windowTitleInput.addEventListener('input', updateStyles);
+
+        paddingInput.addEventListener('input', (e) => {
+            state.padding = e.target.value;
+            updateStyles();
+        });
+
+        opacityInput.addEventListener('input', (e) => {
+            state.opacity = e.target.value;
+            updateStyles();
+        });
+
+        fontInput.addEventListener('input', (e) => {
+            state.fontSize = e.target.value;
+            updateStyles();
+        });
+
+        languageSelect.addEventListener('change', (e) => {
+            state.language = e.target.value;
+            updateStyles();
+        });
+
+        widthInput.addEventListener('input', (e) => {
+            if (e.target.value < 420) {
+                state.width = 400; // Treat as auto
+            } else {
+                state.width = e.target.value;
+            }
+            updateStyles();
+        });
+
+        wrapToggle.addEventListener('change', (e) => {
+            state.wrap = e.target.checked;
+            updateStyles();
+        });
+
+        scaleInput.addEventListener('input', (e) => {
+            state.exportScale = parseInt(e.target.value);
+            document.getElementById('scaleVal').innerText = `${state.exportScale}x`;
+        });
+
+        // Background Mode Switching
+        bgModeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update State
+                state.bgMode = btn.dataset.mode;
+                
+                // Update UI Buttons
+                bgModeBtns.forEach(b => {
+                    b.classList.remove('bg-indigo-600', 'text-white');
+                    b.classList.add('text-gray-400');
+                });
+                btn.classList.add('bg-indigo-600', 'text-white');
+                btn.classList.remove('text-gray-400');
+
+                // Toggle Control Visibility
+                gradientControls.classList.add('hidden');
+                solidControls.classList.add('hidden');
+                transparentControls.classList.add('hidden');
+
+                if (state.bgMode === 'gradient') gradientControls.classList.remove('hidden');
+                if (state.bgMode === 'solid') solidControls.classList.remove('hidden');
+                if (state.bgMode === 'transparent') transparentControls.classList.remove('hidden');
+
+                updateBackground();
+            });
+        });
+
+        // Gradient & Solid Listeners
+        const updateGradient = () => {
+            state.customGradient.c1 = color1.value;
+            state.customGradient.c2 = color2.value;
+            state.customGradient.angle = angleInput.value;
+            angleVal.innerText = `${angleInput.value}°`;
+            updateBackground();
+        };
+
+        const updateSolid = () => {
+            state.solidColor = solidColor.value;
+            updateBackground();
+        };
+
+        color1.addEventListener('input', updateGradient);
+        color2.addEventListener('input', updateGradient);
+        angleInput.addEventListener('input', updateGradient);
+        solidColor.addEventListener('input', updateSolid);
+
+
+        themeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                themeBtns.forEach(b => {
+                    b.classList.remove('ring-2', 'ring-indigo-500');
+                });
+                btn.classList.add('ring-2', 'ring-indigo-500');
+                
+                const themeClass = btn.dataset.theme;
+                codeWindow.className = `rounded-xl overflow-hidden min-w-[400px] shadow-2xl transition-all duration-300 ${state.wrap ? 'wrapping-on' : 'wrapping-off'} ${themeClass === 'default' ? '' : themeClass}`;
+                
+                state.theme = themeClass;
+            });
+        });
+
+        downloadBtn.addEventListener('click', async () => {
+            const originalBtnText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...`;
+            lucide.createIcons();
+
+            // Add exporting class to body for CSS overrides
+            document.body.classList.add('exporting');
+            
+            // Temporarily disable transitions to prevent capture artifacts ("mixed" background)
+            // if capture happens during a transition settle.
+            captureTarget.classList.remove('transition-all', 'duration-300', 'ease-out');
+            codeWindow.classList.remove('transition-all', 'duration-300');
+
+            try {
+                // Short timeout to allow DOM to update before capture
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                const canvas = await html2canvas(captureTarget, {
+                    scale: state.exportScale, 
+                    useCORS: true,
+                    backgroundColor: null,
+                    logging: false,
+                });
+                const link = document.createElement('a');
+                link.download = `codesnap-${new Date().getTime()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (err) {
+                console.error("Export failed:", err);
+                alert("Failed to export image.");
+            } finally {
+                // Remove exporting class
+                document.body.classList.remove('exporting');
+                
+                // Restore transitions
+                captureTarget.classList.add('transition-all', 'duration-300', 'ease-out');
+                codeWindow.classList.add('transition-all', 'duration-300');
+                
+                downloadBtn.innerHTML = originalBtnText;
+                lucide.createIcons();
+            }
+        });
+
+        // --- Initialization ---
+        // Ensure slider is at auto start
+        widthInput.value = 400; 
+        updateCode();
+        updateStyles();
+        updateBackground();
+
+    </script>
+</body>
+</html>
